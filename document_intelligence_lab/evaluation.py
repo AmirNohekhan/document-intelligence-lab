@@ -90,7 +90,12 @@ def evaluate_system(system: str, questions: Iterable[EvalQuestion] = None) -> Tu
         decision = engine.decide(question.question, retrieved, question_id=question.question_id)
         decision = verify_citations(decision, [item.chunk for item in retrieved])
         retrieved_doc_ids = {item.chunk.doc_id for item in retrieved}
-        recall = len(set(question.required_doc_ids) & retrieved_doc_ids) / len(question.required_doc_ids)
+        if question.required_doc_ids:
+            recall = len(set(question.required_doc_ids) & retrieved_doc_ids) / len(question.required_doc_ids)
+        else:
+            # No required docs means retrieval has nothing to miss, so recall is vacuously perfect
+            # instead of raising ZeroDivisionError (e.g. ad hoc questions built like cmd_ask's).
+            recall = 1.0
         citation_doc_ids = {citation.doc_id for citation in decision.citations if citation.verified}
         citation_correct = bool(set(question.required_doc_ids) & citation_doc_ids) and all(c.verified for c in decision.citations)
         hallucinated = hallucination_flag(decision, [item.chunk for item in retrieved])
