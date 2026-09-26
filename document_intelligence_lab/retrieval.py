@@ -57,7 +57,7 @@ class RetrievalIndex:
             if current is None:
                 merged[result.chunk.chunk_id] = result
             else:
-                merged[result.chunk.chunk_id] = current.copy(
+                merged[result.chunk.chunk_id] = current.model_copy(
                     update={"score": current.score + result.score, "source": "hybrid"}
                 )
         return sorted(merged.values(), key=lambda item: item.score, reverse=True)[:k]

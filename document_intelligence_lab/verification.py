@@ -10,8 +10,8 @@ def verify_citations(decision: Decision, chunks: Iterable[Chunk]) -> Decision:
     for citation in decision.citations:
         source_text = text_by_chunk.get(citation.chunk_id, "")
         ok = citation.quote.lower() in source_text if citation.quote else False
-        verified.append(citation.copy(update={"verified": ok}))
-    return decision.copy(update={"citations": verified})
+        verified.append(citation.model_copy(update={"verified": ok}))
+    return decision.model_copy(update={"citations": verified})
 
 
 def hallucination_flag(decision: Decision, evidence_chunks: Iterable[Chunk]) -> bool:

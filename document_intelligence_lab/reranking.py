@@ -16,6 +16,8 @@ def rerank(query: str, results: Iterable[RetrievedChunk], k: int = 6) -> List[Re
         type_boost = IMPORTANT_TYPES.get(result.chunk.doc_type.value, 1.0)
         claim_boost = 1.25 if any(term.startswith("clm-") and term in chunk_terms for term in q_terms) else 1.0
         score = result.score * type_boost * claim_boost + overlap
-        reranked.append(result.copy(update={"score": score, "source": f"{result.source}+rerank"}))
+        reranked.append(
+            result.model_copy(update={"score": score, "source": f"{result.source}+rerank"})
+        )
     return sorted(reranked, key=lambda item: item.score, reverse=True)[:k]
 
