@@ -4,10 +4,14 @@ from .models import Chunk, Document
 
 
 def chunk_documents(docs: Iterable[Document], chunk_size: int = 55, overlap: int = 12) -> List[Chunk]:
+    if chunk_size < 1:
+        raise ValueError("chunk_size must be at least 1")
+    if not 0 <= overlap < chunk_size:
+        raise ValueError("overlap must be between 0 and chunk_size - 1")
     chunks: List[Chunk] = []
     for doc in docs:
         words = doc.text.split()
-        step = max(1, chunk_size - overlap)
+        step = chunk_size - overlap
         for start in range(0, len(words), step):
             end = min(len(words), start + chunk_size)
             text = " ".join(words[start:end])
